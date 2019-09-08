@@ -12,7 +12,6 @@ The goals / steps of this project are the following:
 
 
 [//]: # (Image References)
-
 [image1]: ./For_the_markup/grayscale.jpg "Grayscale"
 [image2]: ./For_the_markup/Gaussian.jpg "Gaussian Smoothing"
 [image3]: ./For_the_markup/Canny.jpg "Canny Transformation"
@@ -40,11 +39,13 @@ To be able to find lane lines on the road, I first tested my pipeline on the six
 
 To draw a single line on the left and right lanes, I modified the draw_lines() function by averaging/extrapolating the lines received from the Hough lines image. First, I calculated the slope of each line using the slope equation ((y2-y1)/(x2-x1)), then I calculated the center of each line ([(x1+x2)/2,(y1+y2)/2]). Second, I classified the lines into two categories; right lines belonging to the right lane and left lines belonging to the left lane, I achieved that by checking the slope of each line; if it is positive then it belongs to the right lane and if it is negative then it belongs to the left lane.  Next, I calculated one slope and one center for each category by averaging over the individual lines' values. Then, I defined a line function (y = ms + b) for each category, the (x,y) is the average center, m is the average slope and the intersection (b) was found by rearranging the equation. Now after defining the line equation, the endpoints representing the right and left lanes were calculated by assuming the "y" points to be the start and the end position of the lanes, plugging everything in the equations, we get the "x" points and then we are ready to go.
 
-Below are samples for one image while going through the pipeline steps:
+Below are samples for one image while going through the pipeline steps, each image corresponds to one of the steps above respectively:
 
-If you'd like to include images to show how the pipeline works, here is how to include an image: 
-
-![alt text][image1]
+![Grayscale][image1]
+![Gaussian Smoothing][image2]
+![Canny Transformation][image3]
+![Area of Interest][image4]
+![Hough Transformation - Final Result][image5]
 
 
 ### 2. Identify potential shortcomings with your current pipeline
