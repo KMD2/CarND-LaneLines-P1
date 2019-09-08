@@ -1,56 +1,62 @@
 # **Finding Lane Lines on the Road** 
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-<img src="examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
+## Duoaa Khalifa
 
-Overview
 ---
 
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
+**Finding Lane Lines on the Road**
 
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
-
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
-
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
+The goals / steps of this project are the following:
+* Make a pipeline that finds lane lines on the road
+* Reflect on your work in a written report
 
 
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
+[//]: # (Image References)
 
-1. Describe the pipeline
+[image1]: ./For_the_markup/grayscale.jpg "Grayscale"
+[image2]: ./For_the_markup/Gaussian.jpg "Gaussian Smoothing"
+[image3]: ./For_the_markup/Canny.jpg "Canny Transformation"
+[image4]: ./For_the_markup/AOI.jpg "Area of Interest"
+[image5]: ./For_the_markup/Hough.jpg "Hough Transformation - Final Result"
 
-2. Identify any shortcomings
-
-3. Suggest possible improvements
-
-We encourage using images in your writeup to demonstrate how your pipeline works.  
-
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
-
-
-The Project
 ---
 
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
+### Reflection
 
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) if you haven't already.
+### 1. Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
 
-**Step 2:** Open the code in a Jupyter Notebook
+To be able to find lane lines on the road, I first tested my pipeline on the six different images provided. The pipeline consisted of 5 steps as described below: 
 
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out [Udacity's free course on Anaconda and Jupyter Notebooks](https://classroom.udacity.com/courses/ud1111) to get started.
+1- Converted the images to grayscale (from three channels to one channel) to be able to apply Canny transformation on it.
 
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
+2- Applied Gaussian noise kernel (Gaussian smoothing) on the grayscaled images to help in reducing the noise and receiving strong contrasting boundary lines in the images. I used a kernel size of 7.  
 
-`> jupyter notebook`
+3- Applied Canny transformation to the grayscaled blurred images using the cv2 library. The result was binary images with edges detected on them. I used the values 70 and 150 for the low-threshold and high-threshold respectively to include pixels that are connected with the strong edges only.
 
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
+4- Highlighted the area of interest in the images (the area that encloses the lanes' lines) by creating a boundary around it in the shape of a  trapezoid. 
 
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
+5- Finally,  I applied Hough transformation on the edge- detected images to be able to detect the lane lines. After several trials, I ended up setting  the parameters as follows:  rho = 1 to be able to get the maximum resolution pixels, theta = the equivalence of 1 degree in radians, threshold = 35 minimum intersections in the Hough space gird cell, minimum lane width = 5 pixels as the  minimum to create a line and maximum lane gap = 2 pixels as the maximum gap between lines that can be connected to create a line. 
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
 
+To draw a single line on the left and right lanes, I modified the draw_lines() function by averaging/extrapolating the lines received from the Hough lines image. First, I calculated the slope of each line using the slope equation ((y2-y1)/(x2-x1)), then I calculated the center of each line ([(x1+x2)/2,(y1+y2)/2]). Second, I classified the lines into two categories; right lines belonging to the right lane and left lines belonging to the left lane, I achieved that by checking the slope of each line; if it is positive then it belongs to the right lane and if it is negative then it belongs to the left lane.  Next, I calculated one slope and one center for each category by averaging over the individual lines' values. Then, I defined a line function (y = ms + b) for each category, the (x,y) is the average center, m is the average slope and the intersection (b) was found by rearranging the equation. Now after defining the line equation, the endpoints representing the right and left lanes were calculated by assuming the "y" points to be the start and the end position of the lanes, plugging everything in the equations, we get the "x" points and then we are ready to go.
+
+Below are samples for one image while going through the pipeline steps:
+
+If you'd like to include images to show how the pipeline works, here is how to include an image: 
+
+![alt text][image1]
+
+
+### 2. Identify potential shortcomings with your current pipeline
+
+
+One potential shortcoming would be what would happen when the lights are dim, or when there are shadows over the lanes from surrounding objects. The developed pipeline wouldn't be able to detect these lines efficiently. 
+
+Another shortcoming could be encountered in a scenario having a car driving right in front of us. The car would interfere with the "area of interest" where the lanes are detected. Parts of the car might be mistakenly detected as potential lines, this will again affect the efficiency of the developed lane detection pipeline.
+
+
+### 3. Suggest possible improvements to your pipeline
+
+A possible improvement would be to convert the images from RGB to HSL (hue, saturation, lightness) color representation instead of grayscale. This will take care of the problem of shading and dim lights conditions.
+
+When the pipeline was applied to the video, it was noticed that the detected lanes were a bit "jumpy", one way to overcome this issue is by average the drawn lanes between a couple of consecutive frames (e.g, the first 10 frames of the video will have the same lanes drawn on them (their average calculated lane) and so on).  
